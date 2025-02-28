@@ -17,6 +17,8 @@ pipeline {
                     ls -la
                     node --version
                     npm --version
+                    chown -R adilson:sudo ~/.npm
+                    chown -R jenkins:sudo ~/.npm
                     npm ci
                     npm run build
                     ls -la
