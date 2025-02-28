@@ -8,6 +8,7 @@ pipeline {
             agent {
                 docker {
                     image 'node:18-alpine'
+                    args '-u root:sudo'
                     reuseNode true
                 }
             }
@@ -17,7 +18,6 @@ pipeline {
                     ls -la
                     node --version
                     npm --version
-                    chmod -R 777 ~/.npm
                     npm ci
                     npm run build
                     ls -la
