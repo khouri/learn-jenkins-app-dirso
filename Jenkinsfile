@@ -8,7 +8,7 @@ pipeline {
             agent {
                 docker {
                     image 'node:18-alpine'
-                    args '-u root:sudo'
+                    args '-u root'
                     reuseNode true
                 }
             }
