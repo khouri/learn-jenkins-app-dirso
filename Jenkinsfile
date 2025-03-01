@@ -29,6 +29,7 @@ pipeline {
             agent {
                 docker {
                     image 'node:18-alpine'
+                    args '-u root'
                     reuseNode true
                 }
             }
@@ -46,6 +47,7 @@ pipeline {
             agent {
                 docker {
                     image 'mcr.microsoft.com/playwright:v1.50.0-noble'
+                    args '-u root'
                     reuseNode true
                 }
             }
@@ -54,7 +56,7 @@ pipeline {
                     npm install serve
                     node_modules/.bin/serve -s build &
                     sleep 10
-                    npx playwright test
+                    npx playwright test -reporter=html
                 '''
             }
         }
