@@ -24,46 +24,48 @@ pipeline {
                     '''
             }
         }
-        
-        stage('Test') {
-            agent {
-                docker {
-                    image 'node:18-alpine'
-                    args '-u root'
-                    reuseNode true
-                }
-            }
-            steps {
-                sh ''' 
-                    test -f build/index.html
-                    npm test
-                    ls -la
-                    ls test-results 
-                    '''
+
+        stage('Group Test'){
+            paralel{
+                    stage('Test') {
+                        agent {
+                            docker {
+                                image 'node:18-alpine'
+                                args '-u root'
+                                reuseNode true
+                            }
+                        }
+                        steps {
+                            sh ''' 
+                                test -f build/index.html
+                                npm test
+                                ls -la
+                                ls test-results 
+                                '''
+                        }
+                    }
+
+                    stage('E2E') {
+                        agent {
+                            docker {
+                                image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                                args '-u root'
+                                reuseNode true
+                            }
+                        }
+                        steps {
+                            sh '''
+                                npm install serve
+                                node_modules/.bin/serve -s build &
+                                sleep 10
+                                npx playwright test --reporter=html
+                            '''
+                        }
+                    }
             }
         }
-
-        stage('E2E') {
-            agent {
-                docker {
-                    image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
-                    args '-u root'
-                    reuseNode true
-                }
-            }
-            steps {
-                sh '''
-                    npm install serve
-                    node_modules/.bin/serve -s build &
-                    sleep 10
-                    npx playwright test --reporter=html
-                '''
-            }
-        }
-
     }
-
-
+    
     post {
         always {
             junit '**/jest-results/*.xml'
