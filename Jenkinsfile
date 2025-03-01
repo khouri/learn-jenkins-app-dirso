@@ -26,7 +26,7 @@ pipeline {
         }
 
         stage('Group Test'){
-            paralel{
+            parallel{
                     stage('Test') {
                         agent {
                             docker {
@@ -65,7 +65,7 @@ pipeline {
             }
         }
     }
-    
+
     post {
         always {
             junit '**/jest-results/*.xml'
