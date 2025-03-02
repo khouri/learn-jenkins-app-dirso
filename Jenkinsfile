@@ -4,6 +4,7 @@ pipeline {
     environment {
         NETLIFY_SITE_ID = credentials('netlify-id-site')
         NETLIFY_AUTH_TOKEN = credentials('netlify-token')
+        REACT_APP_VERSION = "1.2.$BUILD_ID"
     }
 
     stages {
@@ -94,7 +95,7 @@ pipeline {
                 }
             }
             environment {
-                        CI_ENVIRONMENT_URL = "${env.STAGING_URL}"
+                        CI_ENVIRONMENT_URL = "TO_BE_DEFINED_LATTER"
             }
             steps {
                 sh '''
@@ -131,7 +132,7 @@ pipeline {
             }
         }
         */
-        
+
         stage('Prod E2E Test') {
             agent {
                 docker {
