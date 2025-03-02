@@ -92,3 +92,17 @@ chown -R jenkins:sudo ~/.npm
 Jenkins cicd token inside ntlifty
 netlify-token
 nfp_skN72GXjUMTiXC3bW5UR9GFpVgrbhX4z4fdd
+
+
+# na configuração de memoria do java, docker, jenkins
+/etc/default/jenkins ou /etc/sysconfig/jenkins.
+
+
+ alterar a linha:
+JAVA_OPTS="-Djava.awt.headless=true"
+para:
+
+JAVA_OPTS="-Djava.awt.headless=true -Dorg.jenkinsci.plugins.docker.workflow.client.DockerClient.CLIENT_TIMEOUT=960000"
+
+# reinicia o jenkins:
+sudo systemctl restart jenkins
