@@ -2,14 +2,12 @@ pipeline {
     agent any
 
     environment {
-                    NETLIFY_SITE_ID = credentials('netlify-id-site')
-                    NETLIFY_AUTH_TOKEN = credentials('netlify-token') 
+        NETLIFY_SITE_ID = credentials('netlify-id-site')
+        NETLIFY_AUTH_TOKEN = credentials('netlify-token')
     }
 
     stages {
-
         stage('Build') {
-
             agent {
                 docker {
                     image 'node:18-alpine'
@@ -19,7 +17,7 @@ pipeline {
             }
 
             steps {
-                sh ''' 
+                sh '''
                     ls -la
                     node --version
                     npm --version
@@ -30,8 +28,8 @@ pipeline {
             }
         }
 
-        stage('Group Test'){
-            parallel{
+        stage('Group Test') {
+            parallel {
                     stage('Test') {
                         agent {
                             docker {
@@ -41,7 +39,7 @@ pipeline {
                             }
                         }
                         steps {
-                            sh ''' 
+                            sh '''
                                 test -f build/index.html
                                 npm test
                                 ls -la
@@ -51,7 +49,7 @@ pipeline {
                                 always {
                                     junit '**/jest-results/*.xml'
                                 }
-                            }                        
+                        }
                     }
 
                     stage('E2E') {
@@ -74,13 +72,40 @@ pipeline {
                             always {
                                     publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'HTML Report', reportTitles: '', useWrapperFileDirectly: true])
                             }
-                        }
+                    }
                     }
             }
         }
 
-        stage('Deploy') {
+       stage('Deploy - Stage') {
+            agent {
+                docker {
+                    image 'node:18-alpine'
+                    args '-u root'
+                    reuseNode true
+                }
+            }
 
+            steps {
+                sh '''
+                        npm install netlify-cli
+                        node_modules/.bin/netlify --version
+                        echo "Deploying to production: $NETLIFY_SITE_ID"
+                        node_modules/.bin/netlify status
+                        node_modules/.bin/netlify deploy --dir=build
+                   '''
+            }
+        }
+        /*validacao manual*/
+        stage('Approval') {
+            steps{
+                timeout(time: 15, unit: 'MINUTES') {
+                   input message: 'Podemos fazer deploy em Prod?', ok: 'deploy'
+                }
+            }
+        }
+
+        stage('Deploy Prod') {
             agent {
                 docker {
                     image 'node:18-alpine'
@@ -101,26 +126,35 @@ pipeline {
         }
 
         stage('Prod E2E') {
-         agent {
-            docker {
-                image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
-                args '-u root'
-                reuseNode true
+            agent {
+                docker {
+                    image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                    args '-u root'
+                    reuseNode true
+                }
             }
-        }
-        environment {
+            environment {
                     CI_ENVIRONMENT_URL = 'https://tubular-tapioca-a21ef2.netlify.app'
-        }
-        steps {
-            sh '''
+            }
+            steps {
+                sh '''
+
                 npx playwright test --reporter=html
             '''
-        }
-    post {
-            always {
-                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'HTML Report Prod', reportTitles: '', useWrapperFileDirectly: true])
+            }
+            post {
+                always {
+                    publishHTML([allowMissing: false,
+                        alwaysLinkToLastBuild: false,
+                        icon: '',
+                        keepAll: false,
+                        reportDir: 'playwright-report',
+                        reportFiles: 'index.html',
+                        reportName: 'HTML Report Prod',
+                        reportTitles: '',
+                        useWrapperFileDirectly: true])
+                }
             }
         }
-    }
     }
 }

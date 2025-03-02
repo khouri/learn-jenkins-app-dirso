@@ -106,3 +106,11 @@ JAVA_OPTS="-Djava.awt.headless=true -Dorg.jenkinsci.plugins.docker.workflow.clie
 
 # reinicia o jenkins:
 sudo systemctl restart jenkins
+
+
+
+
+
+timeout(time: 1, unit: 'MINUTES') {
+    input message: 'Podemos fazer deploy em Prod?', ok: 'deploy'
+}
