@@ -107,7 +107,7 @@ pipeline {
             steps {
                 sh '''
                     netlify --version
-                    echo "Deploying to production: $NETLIFY_SITE_ID"
+                    echo "Deploying to staging: $NETLIFY_SITE_ID"
                     netlify status
                     netlify deploy --dir=build --json > deploy-output.json
                     CI_ENVIRONMENT_URL=$(node-jq -r '.deploy_url' deploy-output.json)
@@ -152,7 +152,6 @@ pipeline {
             }
             steps {
                 sh '''
-                    netlify-cli
                     netlify --version
                     echo "Deploying to production: $NETLIFY_SITE_ID"
                     netlify status
