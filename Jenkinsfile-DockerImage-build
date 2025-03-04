@@ -4,7 +4,8 @@ pipeline {
     stages {
         stage('Docker') {
             steps {
-                sh 'docker buildx build -t my-playwright --file Dockerfile .'
+                sh 'docker buildx build -t my-playwright --file ci/Dockerfile-playwright .'
+                sh 'docker buildx build -t my-aws-cli --file ci/Dockerfile-sws-cli .'
             }
         }
     }

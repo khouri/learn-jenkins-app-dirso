@@ -178,6 +178,7 @@ pipeline {
             environment{
                 AWS_S3_BUCKET = 'jenkinsbucketkhouri6411994'
             }
+
             agent{
                 docker {
                     image "amazon/aws-cli"
