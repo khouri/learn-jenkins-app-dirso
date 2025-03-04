@@ -173,5 +173,27 @@ pipeline {
                 }
             }
         }
+
+        stage('AWS') {
+            environment{
+                AWS_S3_BUCKET = 'jenkinsbucketkhouri6411994'
+            }
+            agent{
+                docker {
+                    image "amazon/aws-cli"
+                    args "--entrypoint=''"
+                    reuseNode true
+                }
+            }
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'aws-jenkinsuser-credential', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
+                 sh '''
+                        echo "Hello World" > index.html
+                        aws s3 sync build s3://$AWS_S3_BUCKET
+                    '''
+                }
+            }
+        }
+
     }
 }

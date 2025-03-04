@@ -107,10 +107,19 @@ JAVA_OPTS="-Djava.awt.headless=true -Dorg.jenkinsci.plugins.docker.workflow.clie
 # reinicia o jenkins:
 sudo systemctl restart jenkins
 
+sudo systemctl status jenkins
+
+
 
 
 
 
 timeout(time: 1, unit: 'MINUTES') {
     input message: 'Podemos fazer deploy em Prod?', ok: 'deploy'
+}
+
+
+# credenciais da AWS:
+withCredentials([usernamePassword(credentialsId: 'aws-jenkinsuser-credential', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
+    // some block
 }
